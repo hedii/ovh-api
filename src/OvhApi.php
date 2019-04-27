@@ -3,7 +3,7 @@
 namespace Hedii\OvhApi;
 
 use GuzzleHttp\Client;
-use function GuzzleHttp\Promise\unwrap;
+use GuzzleHttp\Promise\EachPromise;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Log\LoggerInterface;
 
@@ -185,8 +185,6 @@ class OvhApi
      *
      * @param array $requests
      * @return array
-     * @throws \GuzzleHttp\Exception\GuzzleException
-     * @throws \Throwable
      */
     public function concurrentGet(array $requests): array
     {
@@ -198,8 +196,6 @@ class OvhApi
      *
      * @param array $requests
      * @return array
-     * @throws \GuzzleHttp\Exception\GuzzleException
-     * @throws \Throwable
      */
     public function concurrentPost(array $requests): array
     {
@@ -211,8 +207,6 @@ class OvhApi
      *
      * @param array $requests
      * @return array
-     * @throws \GuzzleHttp\Exception\GuzzleException
-     * @throws \Throwable
      */
     public function concurrentPut(array $requests): array
     {
@@ -224,8 +218,6 @@ class OvhApi
      *
      * @param array $requests
      * @return array
-     * @throws \GuzzleHttp\Exception\GuzzleException
-     * @throws \Throwable
      */
     public function concurrentDelete(array $requests): array
     {
@@ -238,36 +230,37 @@ class OvhApi
      * @param string $method
      * @param array $requests
      * @return array
-     * @throws \GuzzleHttp\Exception\GuzzleException
-     * @throws \Throwable
      */
     public function concurrentRawRequest(string $method, array $requests): array
     {
-        $promises = [];
+        $responses = [];
 
-        foreach ($requests as $request) {
-            $body = $this->formatBody($method, $request['content']);
+        $promises = (function () use ($method, $requests) {
+            foreach ($requests as $request) {
+                $body = $this->formatBody($method, $request['content']);
 
-            $promises[] = $this->client->requestAsync($method, $this->formatPath($request['path']), [
-                'headers' => [
-                    'Content-Type' => 'application/json; charset=utf-8',
-                    'X-Ovh-Application' => $this->appKey,
-                    'X-Ovh-Consumer' => $this->consumerKey,
-                    'X-Ovh-Timestamp' => $this->timestamp(),
-                    'X-Ovh-Signature' => $this->signature($method, $request['path'], $body)
-                ],
-                'query' => $this->formatQuery($method, $request['content']),
-                'body' => $body
-            ]);
-        }
+                yield $this->client->requestAsync($method, $this->formatPath($request['path']), [
+                    'headers' => [
+                        'Content-Type' => 'application/json; charset=utf-8',
+                        'X-Ovh-Application' => $this->appKey,
+                        'X-Ovh-Consumer' => $this->consumerKey,
+                        'X-Ovh-Timestamp' => $this->timestamp(),
+                        'X-Ovh-Signature' => $this->signature($method, $request['path'], $body)
+                    ],
+                    'query' => $this->formatQuery($method, $request['content']),
+                    'body' => $body
+                ]);
+            }
+        })();
 
-        $responses = unwrap($promises);
+        $each = new EachPromise($promises, [
+            'concurrency' => 10,
+            'fulfilled' => function (ResponseInterface $response) use ($responses) {
+                $responses[] = $this->decodeResponse($response);
+            }
+        ]);
 
-        foreach ($responses as $index => $response) {
-            $responses[$index] = $this->decodeResponse($response);
-
-            $this->log("{$method} {$requests[$index]['path']}", $response);
-        }
+        $each->promise()->wait();
 
         return $responses;
     }
