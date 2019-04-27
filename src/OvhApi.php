@@ -246,7 +246,7 @@ class OvhApi
         $promises = [];
 
         foreach ($requests as $request) {
-            $body = $this->formatBody($method, $requests['content']);
+            $body = $this->formatBody($method, $request['content']);
 
             $promises[] = $this->client->requestAsync($method, $this->formatPath($request['path']), [
                 'headers' => [
@@ -256,7 +256,7 @@ class OvhApi
                     'X-Ovh-Timestamp' => $this->timestamp(),
                     'X-Ovh-Signature' => $this->signature($method, $request['path'], $body)
                 ],
-                'query' => $this->formatQuery($method, $requests['content']),
+                'query' => $this->formatQuery($method, $request['content']),
                 'body' => $body
             ]);
         }
@@ -266,7 +266,7 @@ class OvhApi
         foreach ($responses as $index => $response) {
             $responses[$index] = $this->decodeResponse($response);
 
-            $this->log("{$method} $requests[$index]", $response);
+            $this->log("{$method} {$requests[$index]['path']}", $response);
         }
 
         return $responses;
