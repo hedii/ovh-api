@@ -257,7 +257,7 @@ class OvhApi
 
         $each = new EachPromise($promises, [
             'concurrency' => 10,
-            'fulfilled' => function (array $response) {
+            'fulfilled' => function (array $response) use (&$responses) {
                 $responses[] = $response;
             }
         ]);
