@@ -184,44 +184,48 @@ class OvhApi
      * Make concurrent GET requests.
      *
      * @param array $requests
+     * @param int $concurrency
      * @return array
      */
-    public function concurrentGet(array $requests): array
+    public function concurrentGet(array $requests, int $concurrency = 10): array
     {
-        return $this->concurrentRawRequest('GET', $requests);
+        return $this->concurrentRawRequest('GET', $requests, $concurrency);
     }
 
     /**
      * Make concurrent POST requests.
      *
      * @param array $requests
+     * @param int $concurrency
      * @return array
      */
-    public function concurrentPost(array $requests): array
+    public function concurrentPost(array $requests, int $concurrency = 10): array
     {
-        return $this->concurrentRawRequest('POST', $requests);
+        return $this->concurrentRawRequest('POST', $requests, $concurrency);
     }
 
     /**
      * Make concurrent PUT requests.
      *
      * @param array $requests
+     * @param int $concurrency
      * @return array
      */
-    public function concurrentPut(array $requests): array
+    public function concurrentPut(array $requests, int $concurrency = 10): array
     {
-        return $this->concurrentRawRequest('PUT', $requests);
+        return $this->concurrentRawRequest('PUT', $requests, $concurrency);
     }
 
     /**
      * Make concurrent DELETE requests.
      *
      * @param array $requests
+     * @param int $concurrency
      * @return array
      */
-    public function concurrentDelete(array $requests): array
+    public function concurrentDelete(array $requests, int $concurrency = 10): array
     {
-        return $this->concurrentRawRequest('DELETE', $requests);
+        return $this->concurrentRawRequest('DELETE', $requests, $concurrency);
     }
 
     /**
@@ -229,9 +233,10 @@ class OvhApi
      *
      * @param string $method
      * @param array $requests
+     * @param int $concurrency
      * @return array
      */
-    public function concurrentRawRequest(string $method, array $requests): array
+    public function concurrentRawRequest(string $method, array $requests, int $concurrency): array
     {
         $responses = [];
 
@@ -256,7 +261,7 @@ class OvhApi
         })();
 
         $each = new EachPromise($promises, [
-            'concurrency' => 10,
+            'concurrency' => $concurrency,
             'fulfilled' => function (array $response) use (&$responses) {
                 $responses[] = $response;
             }
