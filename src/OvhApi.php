@@ -249,14 +249,16 @@ class OvhApi
                     ],
                     'query' => $this->formatQuery($method, $request['content']),
                     'body' => $body
-                ]);
+                ])->then(function (ResponseInterface $response) {
+                    return $this->decodeResponse($response);
+                });
             }
         })();
 
         $each = new EachPromise($promises, [
             'concurrency' => 10,
-            'fulfilled' => function (ResponseInterface $response) use ($responses) {
-                $responses[] = $this->decodeResponse($response);
+            'fulfilled' => function (array $response) {
+                $responses[] = $response;
             }
         ]);
 
