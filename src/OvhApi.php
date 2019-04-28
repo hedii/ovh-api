@@ -2,6 +2,7 @@
 
 namespace Hedii\OvhApi;
 
+use Exception;
 use GuzzleHttp\Client;
 use GuzzleHttp\Promise\EachPromise;
 use Psr\Http\Message\ResponseInterface;
@@ -240,6 +241,8 @@ class OvhApi
     {
         $responses = [];
 
+        $requests['content'] = $requests['content'] ?? [];
+
         $promises = (function () use ($method, $requests) {
             foreach ($requests as $request) {
                 $body = $this->formatBody($method, $request['content']);
@@ -254,16 +257,19 @@ class OvhApi
                     ],
                     'query' => $this->formatQuery($method, $request['content']),
                     'body' => $body
-                ])->then(function (ResponseInterface $response) {
-                    return $this->decodeResponse($response);
+                ])->then(function (ResponseInterface $response): ResponseInterface {
+                    return $response;
                 });
             }
         })();
 
         $each = new EachPromise($promises, [
             'concurrency' => $concurrency,
-            'fulfilled' => function (array $response) use (&$responses) {
-                $responses[] = $response;
+            'fulfilled' => function (ResponseInterface $response) use (&$responses): void {
+                $responses[] = $this->decodeResponse($response);
+            },
+            'rejected' => function (Exception $exception): void {
+                throw $exception;
             }
         ]);
 
