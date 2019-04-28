@@ -241,10 +241,10 @@ class OvhApi
     {
         $responses = [];
 
-        $requests['content'] = $requests['content'] ?? [];
-
         $promises = (function () use ($method, $requests) {
             foreach ($requests as $request) {
+                $request['content'] = $request['content'] ?? [];
+
                 $body = $this->formatBody($method, $request['content']);
 
                 yield $this->client->requestAsync($method, $this->formatPath($request['path']), [
