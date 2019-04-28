@@ -104,10 +104,10 @@ class OvhApi
      *
      * @param string $path
      * @param array $content
-     * @return array
+     * @return null|array
      * @throws \GuzzleHttp\Exception\GuzzleException
      */
-    public function get(string $path, array $content = []): array
+    public function get(string $path, array $content = []): ?array
     {
         return $this->rawCall('GET', $path, $content);
     }
@@ -117,10 +117,10 @@ class OvhApi
      *
      * @param string $path
      * @param array $content
-     * @return array
+     * @return null|array
      * @throws \GuzzleHttp\Exception\GuzzleException
      */
-    public function post(string $path, array $content = []): array
+    public function post(string $path, array $content = []): ?array
     {
         return $this->rawCall('POST', $path, $content);
     }
@@ -130,10 +130,10 @@ class OvhApi
      *
      * @param string $path
      * @param array $content
-     * @return array
+     * @return null|array
      * @throws \GuzzleHttp\Exception\GuzzleException
      */
-    public function put(string $path, array $content = []): array
+    public function put(string $path, array $content = []): ?array
     {
         return $this->rawCall('PUT', $path, $content);
     }
@@ -143,10 +143,10 @@ class OvhApi
      *
      * @param string $path
      * @param array $content
-     * @return array
+     * @return null|array
      * @throws \GuzzleHttp\Exception\GuzzleException
      */
-    public function delete(string $path, array $content = []): array
+    public function delete(string $path, array $content = []): ?array
     {
         return $this->rawCall('DELETE', $path, $content);
     }
@@ -157,10 +157,10 @@ class OvhApi
      * @param string $method
      * @param string $path
      * @param array $content
-     * @return array
+     * @return null|array
      * @throws \GuzzleHttp\Exception\GuzzleException
      */
-    public function rawCall(string $method, string $path, array $content = []): array
+    public function rawCall(string $method, string $path, array $content = []): ?array
     {
         $body = $this->formatBody($method, $content);
 
@@ -186,9 +186,9 @@ class OvhApi
      *
      * @param array $requests
      * @param int $concurrency
-     * @return array
+     * @return null|array
      */
-    public function concurrentGet(array $requests, int $concurrency = 10): array
+    public function concurrentGet(array $requests, int $concurrency = 10): ?array
     {
         return $this->concurrentRawRequest('GET', $requests, $concurrency);
     }
@@ -198,9 +198,9 @@ class OvhApi
      *
      * @param array $requests
      * @param int $concurrency
-     * @return array
+     * @return null|array
      */
-    public function concurrentPost(array $requests, int $concurrency = 10): array
+    public function concurrentPost(array $requests, int $concurrency = 10): ?array
     {
         return $this->concurrentRawRequest('POST', $requests, $concurrency);
     }
@@ -210,9 +210,9 @@ class OvhApi
      *
      * @param array $requests
      * @param int $concurrency
-     * @return array
+     * @return null|array
      */
-    public function concurrentPut(array $requests, int $concurrency = 10): array
+    public function concurrentPut(array $requests, int $concurrency = 10): ?array
     {
         return $this->concurrentRawRequest('PUT', $requests, $concurrency);
     }
@@ -222,9 +222,9 @@ class OvhApi
      *
      * @param array $requests
      * @param int $concurrency
-     * @return array
+     * @return null|array
      */
-    public function concurrentDelete(array $requests, int $concurrency = 10): array
+    public function concurrentDelete(array $requests, int $concurrency = 10): ?array
     {
         return $this->concurrentRawRequest('DELETE', $requests, $concurrency);
     }
@@ -235,9 +235,9 @@ class OvhApi
      * @param string $method
      * @param array $requests
      * @param int $concurrency
-     * @return array
+     * @return null|array
      */
-    public function concurrentRawRequest(string $method, array $requests, int $concurrency): array
+    public function concurrentRawRequest(string $method, array $requests, int $concurrency): ?array
     {
         $responses = [];
 
@@ -395,11 +395,15 @@ class OvhApi
      * Decode a json response to an array.
      *
      * @param \Psr\Http\Message\ResponseInterface $response
-     * @return array
+     * @return null|array
      */
-    protected function decodeResponse(ResponseInterface $response): array
+    protected function decodeResponse(ResponseInterface $response): ?array
     {
-        return json_decode($response->getBody()->getContents(), true);
+        if ($content = $response->getBody()->getContents()) {
+            return json_decode($content, true);
+        }
+
+        return null;
     }
 
     /**
