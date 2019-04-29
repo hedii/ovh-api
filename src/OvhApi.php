@@ -6,7 +6,6 @@ use Exception;
 use GuzzleHttp\Client;
 use GuzzleHttp\Promise\EachPromise;
 use Psr\Http\Message\ResponseInterface;
-use Psr\Log\LoggerInterface;
 
 class OvhApi
 {
@@ -55,13 +54,6 @@ class OvhApi
     protected $consumerKey;
 
     /**
-     * The psr logger implementation.
-     *
-     * @var \Psr\Log\LoggerInterface|null
-     */
-    protected $logger;
-
-    /**
      * The http client instance.
      *
      * @var \GuzzleHttp\Client
@@ -82,20 +74,12 @@ class OvhApi
      * @param string $appSecret
      * @param string $endpoint
      * @param string $consumerKey
-     * @param \Psr\Log\LoggerInterface|null $logger
      */
-    public function __construct(
-        string $appKey,
-        string $appSecret,
-        string $endpoint,
-        string $consumerKey,
-        ?LoggerInterface $logger = null
-    ) {
+    public function __construct(string $appKey, string $appSecret, string $endpoint, string $consumerKey) {
         $this->appKey = $appKey;
         $this->appSecret = $appSecret;
         $this->endpoint = $endpoint;
         $this->consumerKey = $consumerKey;
-        $this->logger = $logger;
         $this->client = $this->createClient();
     }
 
@@ -175,8 +159,6 @@ class OvhApi
             'query' => $this->formatQuery($method, $content),
             'body' => $body
         ]);
-
-        $this->log("{$method} $path", $response);
 
         return $this->decodeResponse($response);
     }
@@ -404,23 +386,5 @@ class OvhApi
         }
 
         return null;
-    }
-
-    /**
-     * Log a response.
-     *
-     * @param string $message
-     * @param \Psr\Http\Message\ResponseInterface $response
-     */
-    protected function log(string $message, ResponseInterface $response): void
-    {
-        if ($this->logger) {
-            $this->logger->debug($message, [
-                'status' => $response->getStatusCode(),
-                'reason_phrase' => $response->getReasonPhrase(),
-                'headers' => $response->getHeaders(),
-                'body' => $response->getBody()->getContents()
-            ]);
-        }
     }
 }
