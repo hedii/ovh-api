@@ -195,6 +195,7 @@ class OvhApi
     public function rawCall(string $method, string $path, array $content = []): ?array
     {
         $body = $this->formatBody($method, $content);
+        $query = $this->formatQuery($method, $content);
 
         $response = $this->client->request($method, $this->formatPath($path), [
             'headers' => [
@@ -202,9 +203,9 @@ class OvhApi
                 'X-Ovh-Application' => $this->appKey,
                 'X-Ovh-Consumer' => $this->consumerKey,
                 'X-Ovh-Timestamp' => $this->timestamp(),
-                'X-Ovh-Signature' => $this->signature($method, $path, $body)
+                'X-Ovh-Signature' => $this->signature($method, $path, $body, $query)
             ],
-            'query' => $this->formatQuery($method, $content),
+            'query' => $query,
             'body' => $body
         ]);
 
@@ -228,6 +229,7 @@ class OvhApi
                 $request['content'] = $request['content'] ?? [];
 
                 $body = $this->formatBody($method, $request['content']);
+                $query = $this->formatQuery($method, $request['content']);
 
                 yield $this->client->requestAsync($method, $this->formatPath($request['path']), [
                     'headers' => [
@@ -235,9 +237,9 @@ class OvhApi
                         'X-Ovh-Application' => $this->appKey,
                         'X-Ovh-Consumer' => $this->consumerKey,
                         'X-Ovh-Timestamp' => $this->timestamp(),
-                        'X-Ovh-Signature' => $this->signature($method, $request['path'], $body)
+                        'X-Ovh-Signature' => $this->signature($method, $request['path'], $body, $query)
                     ],
-                    'query' => $this->formatQuery($method, $request['content']),
+                    'query' => $query,
                     'body' => $body
                 ])->then(function (ResponseInterface $response): ResponseInterface {
                     return $response;
@@ -299,12 +301,17 @@ class OvhApi
      * @param string $method
      * @param string $path
      * @param string $body
+     * @param array $query
      * @return string
      * @throws \GuzzleHttp\Exception\GuzzleException
      */
-    protected function signature(string $method, string $path, string $body): string
+    protected function signature(string $method, string $path, string $body, array $query): string
     {
         $url = $this->endpoints[$this->endpoint] . $this->formatPath($path);
+
+        if ($method === 'GET' && $queryString = http_build_query($query)) {
+            $url .= "?{$queryString}";
+        }
 
         $toSign = "{$this->appSecret}+{$this->consumerKey}+{$method}+{$url}+{$body}+{$this->timestamp()}";
 
