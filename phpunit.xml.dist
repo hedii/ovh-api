@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<phpunit bootstrap="vendor/autoload.php"
+         colors="true"
+         stopOnFailure="true">
+    <testsuites>
+        <testsuite name="OvhApi Test Suite">
+            <directory suffix="Test.php">./tests/</directory>
+        </testsuite>
+    </testsuites>
+    <php>
+        <!--
+        <env name="OVH_APPLICATION_KEY" value="<your_app_key_here>"/>
+        <env name="OVH_APPLICATION_SECRET" value="<your_app_secret_here>"/>
+        <env name="OVH_ENDPOINT" value="ovh-eu"/>
+        <env name="OVH_CONSUMER_KEY" value="<your_consumer_key_here>"/>
+        -->
+    </php>
+</phpunit>
