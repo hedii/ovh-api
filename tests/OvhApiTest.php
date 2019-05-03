@@ -26,14 +26,14 @@ class OvhApiTest extends TestCase
 
         $appKey = getenv('OVH_APPLICATION_KEY');
         $appSecret = getenv('OVH_APPLICATION_SECRET');
-        $endpoint = getenv('OVH_ENDPOINT');
         $consumerKey = getenv('OVH_CONSUMER_KEY');
+        $endpoint = getenv('OVH_ENDPOINT');
 
-        if (! $appKey || ! $appSecret || ! $endpoint || ! $consumerKey) {
+        if (! $appKey || ! $appSecret || ! $consumerKey || ! $endpoint) {
             throw new Exception('You need to setup the api credentials in phpunit.xml before running the test suite');
         }
 
-        $this->api = new OvhApi($appKey, $appSecret, $endpoint, $consumerKey);
+        $this->api = new OvhApi($appKey, $appSecret, $consumerKey, $endpoint);
     }
 
     /** @test */

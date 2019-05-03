@@ -40,18 +40,18 @@ class OvhApi
     protected $appSecret;
 
     /**
-     * The api endpoint.
-     *
-     * @var string
-     */
-    protected $endpoint;
-
-    /**
      * The application consumer key.
      *
      * @var string
      */
     protected $consumerKey;
+
+    /**
+     * The api endpoint.
+     *
+     * @var string
+     */
+    protected $endpoint;
 
     /**
      * The http client instance.
@@ -72,14 +72,14 @@ class OvhApi
      *
      * @param string $appKey
      * @param string $appSecret
-     * @param string $endpoint
      * @param string $consumerKey
+     * @param string $endpoint
      */
-    public function __construct(string $appKey, string $appSecret, string $endpoint, string $consumerKey) {
+    public function __construct(string $appKey, string $appSecret, string $consumerKey, string $endpoint) {
         $this->appKey = $appKey;
         $this->appSecret = $appSecret;
-        $this->endpoint = $endpoint;
         $this->consumerKey = $consumerKey;
+        $this->endpoint = $endpoint;
         $this->client = $this->createClient();
     }
 

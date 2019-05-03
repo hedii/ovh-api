@@ -11,8 +11,8 @@
         <!--
         <env name="OVH_APPLICATION_KEY" value="<your_app_key_here>"/>
         <env name="OVH_APPLICATION_SECRET" value="<your_app_secret_here>"/>
-        <env name="OVH_ENDPOINT" value="ovh-eu"/>
         <env name="OVH_CONSUMER_KEY" value="<your_consumer_key_here>"/>
+        <env name="OVH_ENDPOINT" value="ovh-eu"/>
         -->
     </php>
 </phpunit>
