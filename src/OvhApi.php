@@ -136,34 +136,6 @@ class OvhApi
     }
 
     /**
-     * Make a request.
-     *
-     * @param string $method
-     * @param string $path
-     * @param array $content
-     * @return null|array
-     * @throws \GuzzleHttp\Exception\GuzzleException
-     */
-    public function rawCall(string $method, string $path, array $content = []): ?array
-    {
-        $body = $this->formatBody($method, $content);
-
-        $response = $this->client->request($method, $this->formatPath($path), [
-            'headers' => [
-                'Content-Type' => 'application/json; charset=utf-8',
-                'X-Ovh-Application' => $this->appKey,
-                'X-Ovh-Consumer' => $this->consumerKey,
-                'X-Ovh-Timestamp' => $this->timestamp(),
-                'X-Ovh-Signature' => $this->signature($method, $path, $body)
-            ],
-            'query' => $this->formatQuery($method, $content),
-            'body' => $body
-        ]);
-
-        return $this->decodeResponse($response);
-    }
-
-    /**
      * Make concurrent GET requests.
      *
      * @param array $requests
@@ -209,6 +181,34 @@ class OvhApi
     public function concurrentDelete(array $requests, int $concurrency = 10): ?array
     {
         return $this->concurrentRawRequest('DELETE', $requests, $concurrency);
+    }
+
+    /**
+     * Make a request.
+     *
+     * @param string $method
+     * @param string $path
+     * @param array $content
+     * @return null|array
+     * @throws \GuzzleHttp\Exception\GuzzleException
+     */
+    public function rawCall(string $method, string $path, array $content = []): ?array
+    {
+        $body = $this->formatBody($method, $content);
+
+        $response = $this->client->request($method, $this->formatPath($path), [
+            'headers' => [
+                'Content-Type' => 'application/json; charset=utf-8',
+                'X-Ovh-Application' => $this->appKey,
+                'X-Ovh-Consumer' => $this->consumerKey,
+                'X-Ovh-Timestamp' => $this->timestamp(),
+                'X-Ovh-Signature' => $this->signature($method, $path, $body)
+            ],
+            'query' => $this->formatQuery($method, $content),
+            'body' => $body
+        ]);
+
+        return $this->decodeResponse($response);
     }
 
     /**
