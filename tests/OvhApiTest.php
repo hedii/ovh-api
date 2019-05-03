@@ -44,4 +44,18 @@ class OvhApiTest extends TestCase
         $this->assertIsArray($me);
         $this->assertNotEmpty($me['nichandle']);
     }
+
+    /** @test */
+    public function it_should_get_me_concurrently(): void
+    {
+        $me = $this->api->concurrentGet([
+            ['path' => '/me'],
+            ['path' => '/me']
+        ]);
+
+        $this->assertIsArray($me);
+        $this->assertCount(2, $me);
+        $this->assertNotEmpty($me[0]['nichandle']);
+        $this->assertNotEmpty($me[1]['nichandle']);
+    }
 }
