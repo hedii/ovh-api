@@ -249,8 +249,8 @@ class OvhApi
 
         $each = new EachPromise($promises, [
             'concurrency' => $concurrency,
-            'fulfilled' => function (ResponseInterface $response) use (&$responses): void {
-                $responses[] = $this->decodeResponse($response);
+            'fulfilled' => function (ResponseInterface $response, int $index) use (&$responses): void {
+                $responses[$index] = $this->decodeResponse($response);
             },
             'rejected' => function (Exception $exception): void {
                 throw $exception;
